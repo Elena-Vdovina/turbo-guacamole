@@ -36,6 +36,10 @@ public class Event {
     return date;
   }
 
+  public String getDateStr(){
+    return formatter.format(date);
+  }
+
   public Boolean getCheck() {
     return check;
   }
