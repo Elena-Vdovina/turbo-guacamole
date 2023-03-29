@@ -51,8 +51,7 @@ public class Main {
         } // вывод списка невыполненных дел
         case CREATE -> createNewList(); // создание нового списка дел
         case ADD -> addEvent(); // добавление новой записи
-        case CHECKDATE -> {
-        } // изменение даты выполнения
+        case CHECKDATE -> setData(); // изменение даты выполнения
         case CHECK -> setCheck(); // изменение статуса дела
       }
       command = readCommand(); // команда EXIT просто завершит цикл
@@ -92,7 +91,7 @@ public class Main {
   }
 
   // Читает список дел из файла в начале работы программы
-  public static List<Event> readFile() {
+  public static List<Event> readFile() throws IOException, ParseException {
     List<Event> events = new ArrayList<>();
     try {
       List<String> lines = new ArrayList<>();
@@ -101,7 +100,7 @@ public class Main {
       while ((line = fr.readLine()) != null) {
         lines.add(line);
       }
-      for (int i = 1; i < lines.size(); ++i) {
+      for (int i = 0; i < lines.size(); ++i) {
         List<String> columns = List.of(lines.get(i).split(";", -1));
         int status = Integer.parseInt(columns.get(2));
         Event event = new Event(columns.get(0), columns.get(1), status);
@@ -109,18 +108,16 @@ public class Main {
       }
       fr.close();
     } catch (IOException e) {
-      System.out.println(e.getMessage());
+      System.out.println("У Вас не обнаружен список дел");
+      createNewList();
     } catch (ParseException e) {
       throw new RuntimeException(e);
-      //} catch (FileNotFoundException e) {
-
-
     }
     return events;
   }
 
   // Выводит список дел на экран
-  public static void printList() {
+  public static void printList() throws IOException, ParseException {
     List<Event> events = readFile();
     int i = 0;
     for (Event event : events) {
@@ -145,6 +142,7 @@ public class Main {
     // добавили
     Event event = new Event(name, dateStr, status);
     events.add(event);
+
     // записали в файл
     writeFile(events);
     printList();
@@ -160,7 +158,7 @@ public class Main {
       } else {
         line += "0";
       }
-      line+="\n";
+      line += "\n";
       fr.write(line);
     }
     fr.close();
@@ -180,7 +178,29 @@ public class Main {
     Event event = events.get(n - 1);
     Event event1 = new Event(event.getName(), event.getDateStr(), status);
     events.set(n - 1, event1);
+    writeFile(events);
+    printList();
+  }
 
+  public static void setData() throws IOException, ParseException {
+    List<Event> events = readFile();
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    printList();
+
+    System.out.print("Номер записи для изменения даты ");
+    int n = Integer.parseInt(br.readLine());
+    System.out.print("Введите новую дату (дд.мм.гггг) - ");
+    String dateStr = br.readLine();
+
+    Event event = events.get(n - 1);
+    int status;
+    if (event.getCheck()) {
+      status = 1;
+    } else {
+      status = 0;
+    }
+    Event event1 = new Event(event.getName(), dateStr, status);
+    events.set(n - 1, event1);
     writeFile(events);
     printList();
   }
@@ -193,11 +213,22 @@ public class Main {
 
     int i = 1;
     while (i == 1) { //
-      addEvent();
+      System.out.println();
+      System.out.println("Новая запись в списке дел:");
+      System.out.print("Что надо сделать - ");
+      String name = br.readLine();
+      System.out.print("До какого числа (\"дд.мм.гггг\") - ");
+      String dateStr = br.readLine();
+      System.out.print("Выполнено/не выполнено (1/0) - ");
+      int status = Integer.parseInt(br.readLine());
+      // добавили
+      Event event = new Event(name, dateStr, status);
+      events.add(event);
       System.out.println();
       System.out.print("Добавить новую запись (1-да, 2-выход): ");
       i = Integer.parseInt(br.readLine());
     }
+    writeFile(events);
     printList();
   }
 }
