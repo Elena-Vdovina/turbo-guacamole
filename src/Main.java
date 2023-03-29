@@ -145,22 +145,27 @@ public static void printListNoCheck() throws IOException, ParseException {
   }
 }
 
+  // Выводит список дел на текущую дату
   public static void printListForDay() throws IOException, ParseException {
-    List<Event> events = readFile();
-    Date current = new Date();
+    List<Event> events = readFile(); // читаем список дел
+    Date current = new Date(); // записываем текущую системную дату
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
-    String currentDate = formatter.format(current);
-    System.out.println("План дел на сегодня");
-    int i = 0;
+    String currentDate = formatter.format(current); // переводим системную дату в строку
+    int i = 0; // счетчик
+    boolean y = false; // флаг для определения пустого списка
+    System.out.println("Список дел на сегодня");
     for (Event event : events) {
-      String dateToDo = formatter.format(event.getDate());
+      String dateToDo = formatter.format(event.getDate()); // переводим в строку даты из списка дел
       if (currentDate.equals(dateToDo)) {
         System.out.print(i + 1 + " ");
         System.out.println(event);
         ++i;
+        y = true;
       }
     }
+    if (!y) { System.out.println("Список пуст");}
   }
+
     // Добавляет новую запись в список дел и сохраняет ее в файл
   public static void addEvent() throws IOException, ParseException {
     List<Event> events = readFile();
