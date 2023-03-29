@@ -8,7 +8,7 @@ public class Event {
   private static final DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
   private final String name;
   private Date date;
-  private Boolean check;
+  private static Boolean check;
 
   public Event(String name, String dateStr, int status) throws ParseException {
     this.name = name;
@@ -40,7 +40,7 @@ public class Event {
     return formatter.format(date);
   }
 
-  public Boolean getCheck() {
+  public static Boolean getCheck() {
     return check;
   }
 
@@ -48,5 +48,4 @@ public class Event {
   public String toString() {
     return String.format("%-30s %-10s %b",name, formatter.format(date), check);
   }
-
 }

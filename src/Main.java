@@ -1,9 +1,6 @@
 import java.io.*;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 // Сделать класс для списка дел. Команды:
@@ -47,8 +44,7 @@ public class Main {
     while (command != Command.EXIT) { // основной рабочий цикл программы, обрабатывающий команды
       switch (command) {
         case VIEW -> printList(); // вывод всего списка (или по дате?)
-        case VIEW_PLANS -> {
-        } // вывод списка невыполненных дел
+        case VIEW_PLANS -> printListNoCheck(); // вывод списка невыполненных дел
         case CREATE -> createNewList(); // создание нового списка дел
         case ADD -> addEvent(); // добавление новой записи
         case CHECKDATE -> setData(); // изменение даты выполнения
@@ -127,7 +123,25 @@ public class Main {
     }
   }
 
-  // Добавляет новую запись в список дел и сохраняет ее в файл
+  // Выводит список невыполненных дел с сортировкой по дате и алфавиту
+  public static void printListNoCheck() throws IOException, ParseException {
+    List<Event> events = readFile();
+    List<Event> noCheckEvents = new ArrayList<>();
+    for (Event value : events) {
+      if (!Event.getCheck()) {
+        noCheckEvents.add(value);
+      }
+    }
+    noCheckEvents.sort(new EventDateNameComparator());
+    int i = 0;
+    for (Event event : noCheckEvents) {
+      System.out.print(i + 1 + " ");
+      System.out.println(event);
+      ++i;
+    }
+  }
+
+    // Добавляет новую запись в список дел и сохраняет ее в файл
   public static void addEvent() throws IOException, ParseException {
     List<Event> events = readFile();
     // прочитали
