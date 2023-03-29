@@ -46,6 +46,9 @@ public class Event {
 
   @Override
   public String toString() {
-    return String.format("%-30s %-10s %b",name, formatter.format(date), check);
+    String checkToPrint;
+    if (this.check) checkToPrint = "Сделано";
+    else checkToPrint = "Не сделано";
+    return String.format("%-30s %-10s %s",name, formatter.format(date), checkToPrint);
   }
 }
