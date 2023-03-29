@@ -1,5 +1,6 @@
 import java.io.*;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -19,7 +20,8 @@ public class Main {
 
   enum Command {
     VIEW, // Посмотреть дела (по умолчанию весь список; по дате, если ввести ее?)
-    PLANS, // посмотреть невыполненные дела (?с будущей датой?)
+    PLANS, // посмотреть невыполненные дела
+    TODAY, // посмотреть дела на текущую дату
     CREATE, //Создать новый список дел
     ADD, // добавить дело (строку: дело и дата)
     CHECKDATE, // изменить дату
@@ -32,6 +34,7 @@ public class Main {
   static { // статический константный словарь
     commands.put(Command.VIEW, "Посмотреть список дел");
     commands.put(Command.PLANS, "Посмотреть невыполненные дела");
+    commands.put(Command.TODAY, "Посмотреть невыполненные дела");
     commands.put(Command.CREATE, "Создать новый список дел");
     commands.put(Command.ADD, "Добавить запись");
     commands.put(Command.CHECKDATE, "Изменить дату выполнения");
@@ -45,6 +48,7 @@ public class Main {
       switch (command) {
         case VIEW -> printList(); // вывод всего списка (или по дате?)
         case PLANS -> printListNoCheck(); // вывод списка невыполненных дел
+        case TODAY -> printListForDay(); // вывод списка дел на текущую дату
         case CREATE -> createNewList(); // создание нового списка дел
         case ADD -> addEvent(); // добавление новой записи
         case CHECKDATE -> setData(); // изменение даты выполнения
@@ -141,6 +145,22 @@ public static void printListNoCheck() throws IOException, ParseException {
   }
 }
 
+  public static void printListForDay() throws IOException, ParseException {
+    List<Event> events = readFile();
+    Date current = new Date();
+    SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
+    String currentDate = formatter.format(current);
+    System.out.println("План дел на сегодня");
+    int i = 0;
+    for (Event event : events) {
+      String dateToDo = formatter.format(event.getDate());
+      if (currentDate.equals(dateToDo)) {
+        System.out.print(i + 1 + " ");
+        System.out.println(event);
+        ++i;
+      }
+    }
+  }
     // Добавляет новую запись в список дел и сохраняет ее в файл
   public static void addEvent() throws IOException, ParseException {
     List<Event> events = readFile();
