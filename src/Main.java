@@ -19,7 +19,7 @@ public class Main {
 
   enum Command {
     VIEW, // Посмотреть дела (по умолчанию весь список; по дате, если ввести ее?)
-    VIEW_PLANS, // посмотреть невыполненные дела (?с будущей датой?)
+    PLANS, // посмотреть невыполненные дела (?с будущей датой?)
     CREATE, //Создать новый список дел
     ADD, // добавить дело (строку: дело и дата)
     CHECKDATE, // изменить дату
@@ -31,7 +31,7 @@ public class Main {
 
   static { // статический константный словарь
     commands.put(Command.VIEW, "Посмотреть список дел");
-    commands.put(Command.VIEW_PLANS, "Посмотреть невыполненные дела");
+    commands.put(Command.PLANS, "Посмотреть невыполненные дела");
     commands.put(Command.CREATE, "Создать новый список дел");
     commands.put(Command.ADD, "Добавить запись");
     commands.put(Command.CHECKDATE, "Изменить дату выполнения");
@@ -44,7 +44,7 @@ public class Main {
     while (command != Command.EXIT) { // основной рабочий цикл программы, обрабатывающий команды
       switch (command) {
         case VIEW -> printList(); // вывод всего списка (или по дате?)
-        case VIEW_PLANS -> printListNoCheck(); // вывод списка невыполненных дел
+        case PLANS -> printListNoCheck(); // вывод списка невыполненных дел
         case CREATE -> createNewList(); // создание нового списка дел
         case ADD -> addEvent(); // добавление новой записи
         case CHECKDATE -> setData(); // изменение даты выполнения
@@ -123,23 +123,23 @@ public class Main {
     }
   }
 
-  // Выводит список невыполненных дел с сортировкой по дате и алфавиту
-  public static void printListNoCheck() throws IOException, ParseException {
-    List<Event> events = readFile();
-    List<Event> noCheckEvents = new ArrayList<>();
-    for (Event value : events) {
-      if (!Event.getCheck()) {
-        noCheckEvents.add(value);
-      }
-    }
-    noCheckEvents.sort(new EventDateNameComparator());
-    int i = 0;
-    for (Event event : noCheckEvents) {
-      System.out.print(i + 1 + " ");
-      System.out.println(event);
-      ++i;
+// Выводит список невыполненных дел с сортировкой по дате и алфавиту
+public static void printListNoCheck() throws IOException, ParseException {
+  List<Event> events = readFile();
+  List<Event> noCheckEvents = new ArrayList<>();
+  for (Event event : events) {
+    if (!event.getCheck()) {
+      noCheckEvents.add(event);
     }
   }
+  noCheckEvents.sort(new EventDateNameComparator());
+  int i = 0;
+  for (Event event : noCheckEvents) {
+    System.out.print(i + 1 + " ");
+    System.out.println(event);
+    ++i;
+  }
+}
 
     // Добавляет новую запись в список дел и сохраняет ее в файл
   public static void addEvent() throws IOException, ParseException {
