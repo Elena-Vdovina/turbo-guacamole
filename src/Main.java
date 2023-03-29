@@ -127,23 +127,23 @@ public class Main {
     }
   }
 
-// Выводит список невыполненных дел с сортировкой по дате и алфавиту
-public static void printListNoCheck() throws IOException, ParseException {
-  List<Event> events = readFile();
-  List<Event> noCheckEvents = new ArrayList<>();
-  for (Event event : events) {
-    if (!event.getCheck()) {
-      noCheckEvents.add(event);
+  // Выводит список невыполненных дел с сортировкой по дате и алфавиту
+  public static void printListNoCheck() throws IOException, ParseException {
+    List<Event> events = readFile();
+    List<Event> noCheckEvents = new ArrayList<>();
+    for (Event event : events) {
+      if (!event.getCheck()) {
+        noCheckEvents.add(event);
+      }
+    }
+    noCheckEvents.sort(new EventDateNameComparator());
+    int i = 0;
+    for (Event event : noCheckEvents) {
+      System.out.print(i + 1 + " ");
+      System.out.println(event);
+      ++i;
     }
   }
-  noCheckEvents.sort(new EventDateNameComparator());
-  int i = 0;
-  for (Event event : noCheckEvents) {
-    System.out.print(i + 1 + " ");
-    System.out.println(event);
-    ++i;
-  }
-}
 
   // Выводит список дел на текущую дату
   public static void printListForDay() throws IOException, ParseException {
@@ -155,18 +155,17 @@ public static void printListNoCheck() throws IOException, ParseException {
     boolean y = false; // флаг для определения пустого списка
     System.out.println("Список дел на сегодня");
     for (Event event : events) {
-      String dateToDo = formatter.format(event.getDate()); // переводим в строку даты из списка дел
-      if (currentDate.equals(dateToDo)) {
+      if (currentDate.equals(event.getDateStr())) { // сравниваем текущую дату с датой дела
         System.out.print(i + 1 + " ");
         System.out.println(event);
         ++i;
         y = true;
       }
     }
-    if (!y) { System.out.println("Список пуст");}
+    if (!y) System.out.println("Список пуст");
   }
 
-    // Добавляет новую запись в список дел и сохраняет ее в файл
+  // Добавляет новую запись в список дел и сохраняет ее в файл
   public static void addEvent() throws IOException, ParseException {
     List<Event> events = readFile();
     // прочитали
