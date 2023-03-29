@@ -22,10 +22,11 @@ public class Main {
 
   enum Command {
     VIEW, // Посмотреть дела (по умолчанию весь список; по дате, если ввести ее?)
-    CREATE, //Создать новый список дел
     VIEW_PLANS, // посмотреть невыполненные дела (?с будущей датой?)
+    CREATE, //Создать новый список дел
     ADD, // добавить дело (строку: дело и дата)
-    CHECK, // отметить выполненным (ввести дату и номер номер)  //изменить статус выполнения
+    CHECKDATE, // изменить дату
+    CHECK, //изменить статус выполнения
     EXIT, // выход из программы
   }
 
@@ -36,26 +37,23 @@ public class Main {
     commands.put(Command.VIEW_PLANS, "Посмотреть невыполненные дела");
     commands.put(Command.CREATE, "Создать новый список дел");
     commands.put(Command.ADD, "Добавить запись");
-    commands.put(Command.CHECK, "Отметить дела выполненными");
+    commands.put(Command.CHECKDATE, "Изменить дату выполнения");
+    commands.put(Command.CHECK, "Изменить статус дела");
     commands.put(Command.EXIT, "Выход");
   }
 
   public static void main(String[] args) throws IOException, ParseException {
-//      ToDoList list = new ToDoList(); // объект класса ToDoList
-    List<Event> events = readFile("src/todolist.txt");
-
-
     Command command = readCommand();
     while (command != Command.EXIT) { // основной рабочий цикл программы, обрабатывающий команды
       switch (command) {
-        case ADD -> {
-          addEvent(events);
-        }
-        case CHECK -> setCheck(events); // установление значения для параметра "выполнено"
-        case VIEW -> {
-          printList(events);
-        } // вывод всего списка (или по дате?)
-//          case VIEW_PLANS -> list.printList_toParametr(); // вывод списка невыполненных дел
+        case VIEW -> printList(); // вывод всего списка (или по дате?)
+        case VIEW_PLANS -> {
+        } // вывод списка невыполненных дел
+        case CREATE -> createNewList(); // создание нового списка дел
+        case ADD -> addEvent(); // добавление новой записи
+        case CHECKDATE -> {
+        } // изменение даты выполнения
+        case CHECK -> setCheck(); // изменение статуса дела
       }
       command = readCommand(); // команда EXIT просто завершит цикл
     }
@@ -94,11 +92,11 @@ public class Main {
   }
 
   // Читает список дел из файла в начале работы программы
-  public static List<Event> readFile(String pathToFile) {
+  public static List<Event> readFile() {
     List<Event> events = new ArrayList<>();
     try {
       List<String> lines = new ArrayList<>();
-      BufferedReader fr = new BufferedReader(new FileReader(pathToFile));
+      BufferedReader fr = new BufferedReader(new FileReader("src/todolist.txt"));
       String line;
       while ((line = fr.readLine()) != null) {
         lines.add(line);
@@ -114,12 +112,16 @@ public class Main {
       System.out.println(e.getMessage());
     } catch (ParseException e) {
       throw new RuntimeException(e);
+      //} catch (FileNotFoundException e) {
+
+
     }
     return events;
   }
 
   // Выводит список дел на экран
-  public static void printList(List<Event> events) {
+  public static void printList() {
+    List<Event> events = readFile();
     int i = 0;
     for (Event event : events) {
       System.out.print(i + 1 + " ");
@@ -129,7 +131,8 @@ public class Main {
   }
 
   // Добавляет новую запись в список дел и сохраняет ее в файл
-  public static void addEvent(List<Event> events) throws IOException, ParseException {
+  public static void addEvent() throws IOException, ParseException {
+    List<Event> events = readFile();
     // прочитали
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     System.out.println("Новая запись в списке дел:");
@@ -142,38 +145,59 @@ public class Main {
     // добавили
     Event event = new Event(name, dateStr, status);
     events.add(event);
-    printList(events);
     // записали в файл
     writeFile(events);
+    printList();
   }
 
-  // Записываем список дел в файл
+  // Записываем список дел в файл каждый раз заново
   public static void writeFile(List<Event> events) throws IOException {
     FileWriter fr = new FileWriter("src/todolist.txt");
     for (Event event : events) {
       String line = event.getName() + ";" + event.getDateStr() + ";";
-      if(event.getCheck()){
-        line+="1";
+      if (event.getCheck()) {
+        line += "1";
       } else {
-        line+="0";
+        line += "0";
       }
+      line+="\n";
       fr.write(line);
     }
     fr.close();
   }
 
   // установление значения для параметра "выполнено"
-  public static void setCheck(List<Event> events) throws IOException, ParseException {
+  public static void setCheck() throws IOException, ParseException {
+    List<Event> events = readFile();
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    printList(events);
+    printList();
+
     System.out.print("Номер записи для изменения статуса ");
     int n = Integer.parseInt(br.readLine());
     System.out.print("Введите новый статус - выполнено/не выполнено (1/0) - ");
     int status = Integer.parseInt(br.readLine());
+
     Event event = events.get(n - 1);
     Event event1 = new Event(event.getName(), event.getDateStr(), status);
     events.set(n - 1, event1);
-    printList(events);
+
     writeFile(events);
+    printList();
+  }
+
+  public static void createNewList() throws IOException, ParseException {
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+    System.out.println("Создание нового списка дел: ");
+    List<Event> events = new ArrayList<>();
+
+    int i = 1;
+    while (i == 1) { //
+      addEvent();
+      System.out.println();
+      System.out.print("Добавить новую запись (1-да, 2-выход): ");
+      i = Integer.parseInt(br.readLine());
+    }
+    printList();
   }
 }
