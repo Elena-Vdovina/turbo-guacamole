@@ -1,4 +1,5 @@
 import java.io.*;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -175,10 +176,37 @@ public class Main {
     System.out.println("Новая запись в списке дел:");
     System.out.print("Что надо сделать - ");
     String name = br.readLine();
+    while (name.isEmpty()) { // проверка на пустоту для названия
+      System.out.println("Запись не может быть пустой. Введите дело:");
+      name = br.readLine();
+    }
     System.out.print("До какого числа (\"дд.мм.гггг\") - ");
-    String dateStr = br.readLine();
+    String dateStr = "";
+    boolean tr = false; // флаг для проверки условий
+    while (!tr) {
+      try {
+        dateStr = br.readLine();
+        if (dateStr.isEmpty()) { // сообщение, если пустая строка
+          System.out.print("Дата не может быть пустой.");
+        }
+        DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
+        String dateTest = String.valueOf(formatter.parse(dateStr));
+        tr = true;
+      } catch (ParseException e) { //ошибка, если некорректный формат
+        System.out.print("Неправильный формат ввода! Попробуйте еще раз: ");
+        tr = false;
+      }
+    }
+
     System.out.print("Выполнено/не выполнено (1/0) - ");
-    int status = Integer.parseInt(br.readLine());
+    String strStatus = br.readLine();
+    while (!(strStatus.equals("0") || strStatus.equals("1"))) {
+      // проверка на соответствующее значение
+      System.out.println("Некорректное значение. Введите 1 или 0:");
+      strStatus = br.readLine();
+    }
+    int status = Integer.parseInt(strStatus);
+
     // добавили
     Event event = new Event(name, dateStr, status);
     events.add(event);
