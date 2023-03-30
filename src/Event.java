@@ -39,7 +39,7 @@ public class Event {
     return date;
   }
 
-  public String getDateStr(){
+  public String getDateStr() {
     return formatter.format(date);
   }
 
@@ -50,8 +50,11 @@ public class Event {
   @Override
   public String toString() {
     String checkToPrint;
-    if (this.check) checkToPrint = ANSI_GREEN+"Сделано"+ANSI_RESET;
-    else checkToPrint = ANSI_YELLOW+"Не сделано"+ANSI_RESET;
-    return String.format("%-30s %-10s %s",name, formatter.format(date), checkToPrint);
+    if (this.check) {
+      checkToPrint = ANSI_GREEN + "Выполнено" + ANSI_RESET;
+    } else {
+      checkToPrint = ANSI_YELLOW + "Не выполнено" + ANSI_RESET;
+    }
+    return String.format("%-30s %-10s %s", name, formatter.format(date), checkToPrint);
   }
 }
