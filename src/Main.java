@@ -6,14 +6,14 @@ import java.util.*;
 
 // Сделать класс для списка дел. Команды:
 // - посмотреть весь список дел,
-// - посмотреть спискок на день,
+// - посмотреть список на день,
 // - добавить дело,
 // - отметить выполнение.
 // Отсортировать вывод по датам (на день, неделю), по факту выполнения.
 //
 // Если есть файл, сохраненный ранее, он читает его. Если нет, создает.
 //
-// ?Возможность делать напоминания (сравнить текущую дату и дату дела со статусом "не выполнено")?
+// Возможность делать напоминания (сравнить текущую дату и дату дела со статусом "не выполнено")?
 
 
 public class Main {
@@ -121,7 +121,7 @@ public class Main {
     List<Event> events = readFile();
     int i = 0;
     for (Event event : events) {
-      System.out.print(i + 1 + " ");
+      System.out.printf(" %3d ", i + 1);
       System.out.println(event);
       ++i;
     }
@@ -162,7 +162,9 @@ public class Main {
         y = true;
       }
     }
-    if (!y) System.out.println("Список пуст");
+    if (!y) {
+      System.out.println("Список пуст");
+    }
   }
 
   // Добавляет новую запись в список дел и сохраняет ее в файл
@@ -180,7 +182,6 @@ public class Main {
     // добавили
     Event event = new Event(name, dateStr, status);
     events.add(event);
-
     // записали в файл
     writeFile(events);
     printList();
@@ -207,12 +208,12 @@ public class Main {
     List<Event> events = readFile();
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     printList();
-
+    // прочитали
     System.out.print("Номер записи для изменения статуса ");
     int n = Integer.parseInt(br.readLine());
     System.out.print("Введите новый статус - выполнено/не выполнено (1/0) - ");
     int status = Integer.parseInt(br.readLine());
-
+    // записали
     Event event = events.get(n - 1);
     Event event1 = new Event(event.getName(), event.getDateStr(), status);
     events.set(n - 1, event1);
@@ -220,16 +221,17 @@ public class Main {
     printList();
   }
 
+  // изменение даты выполнения дела
   public static void setData() throws IOException, ParseException {
     List<Event> events = readFile();
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     printList();
-
+    // прочитали
     System.out.print("Номер записи для изменения даты ");
     int n = Integer.parseInt(br.readLine());
     System.out.print("Введите новую дату (дд.мм.гггг) - ");
     String dateStr = br.readLine();
-
+    // записали
     Event event = events.get(n - 1);
     int status;
     if (event.getCheck()) {
@@ -243,12 +245,12 @@ public class Main {
     printList();
   }
 
+  // создание нового списка дел
   public static void createNewList() throws IOException, ParseException {
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
     System.out.println("Создание нового списка дел: ");
     List<Event> events = new ArrayList<>();
-
+    // прочитали
     int i = 1;
     while (i == 1) { //
       System.out.println();
