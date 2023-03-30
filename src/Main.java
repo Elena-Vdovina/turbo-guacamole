@@ -189,13 +189,25 @@ public class Main {
       name = br.readLine();
     }
     System.out.print("До какого числа (\"дд.мм.гггг\") - ");
+    String dateStr = DateValidation(br); // проверка формата ввода
+    System.out.print("Выполнено/не выполнено (1/0) - ");
+    int status = CheckValidation(br); // проверка ввода
+    // добавили
+    Event event = new Event(name, dateStr, status);
+    events.add(event);
+    // записали в файл
+    writeFile(events);
+    printList();
+  }
+
+  public static String DateValidation(BufferedReader br) {
     String dateStr = "";
     boolean tr = false; // флаг для проверки условий
     while (!tr) {
       try {
         dateStr = br.readLine();
         if (dateStr.isEmpty()) { // сообщение, если пустая строка
-          System.out.print(ANSI_RED + "Дата не может быть пустой." + ANSI_RESET);
+          System.out.print(ANSI_RED + "Дата не может быть пустой. " + ANSI_RESET);
         }
         DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
         String dateTest = String.valueOf(formatter.parse(dateStr));
@@ -203,22 +215,21 @@ public class Main {
       } catch (ParseException e) { //ошибка, если некорректный формат
         System.out.print(ANSI_RED + "Неправильный формат ввода! Попробуйте еще раз: " + ANSI_RESET);
         tr = false;
+      } catch (IOException e) {
+        throw new RuntimeException(e);
       }
     }
-    System.out.print("Выполнено/не выполнено (1/0) - ");
+    return dateStr;
+  }
+
+  public static int CheckValidation(BufferedReader br) throws IOException {
     String strStatus = br.readLine();
     while (!(strStatus.equals("0") || strStatus.equals("1"))) {
       // проверка на соответствующее значение
-      System.out.println(ANSI_RED + "Некорректное значение. Введите 1 или 0:" + ANSI_RESET);
+      System.out.print(ANSI_RED + "Некорректное значение. Введите 1 или 0:" + ANSI_RESET);
       strStatus = br.readLine();
     }
-    int status = Integer.parseInt(strStatus);
-    // добавили
-    Event event = new Event(name, dateStr, status);
-    events.add(event);
-    // записали в файл
-    writeFile(events);
-    printList();
+    return Integer.parseInt(strStatus);
   }
 
   // Записываем список дел в файл каждый раз заново
@@ -237,6 +248,7 @@ public class Main {
     fr.close();
   }
 
+
   // установление значения для параметра "выполнено"
   public static void setCheck() throws IOException, ParseException {
     List<Event> events = readFile();
@@ -246,7 +258,7 @@ public class Main {
     System.out.print("Номер записи для изменения статуса ");
     int n = Integer.parseInt(br.readLine());
     System.out.print("Введите новый статус - выполнено/не выполнено (1/0) - ");
-    int status = Integer.parseInt(br.readLine());
+    int status = CheckValidation(br); // проверка ввода
     // записали
     Event event = events.get(n - 1);
     Event event1 = new Event(event.getName(), event.getDateStr(), status);
@@ -264,7 +276,7 @@ public class Main {
     System.out.print("Номер записи для изменения даты ");
     int n = Integer.parseInt(br.readLine());
     System.out.print("Введите новую дату (дд.мм.гггг) - ");
-    String dateStr = br.readLine();
+    String dateStr = DateValidation(br); // проверка формата ввода
     // записали
     Event event = events.get(n - 1);
     int status;
