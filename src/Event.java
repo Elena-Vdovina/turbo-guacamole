@@ -5,6 +5,9 @@ import java.util.Date;
 
 public class Event {
 
+  public static final String ANSI_RESET = "\u001B[0m";
+  public static final String ANSI_GREEN = "\u001B[32m";
+  public static final String ANSI_YELLOW = "\u001B[33m";
   private static final DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
   private final String name;
   private Date date;
@@ -47,8 +50,8 @@ public class Event {
   @Override
   public String toString() {
     String checkToPrint;
-    if (this.check) checkToPrint = "Сделано";
-    else checkToPrint = "Не сделано";
+    if (this.check) checkToPrint = ANSI_GREEN+"Сделано"+ANSI_RESET;
+    else checkToPrint = ANSI_YELLOW+"Не сделано"+ANSI_RESET;
     return String.format("%-30s %-10s %s",name, formatter.format(date), checkToPrint);
   }
 }

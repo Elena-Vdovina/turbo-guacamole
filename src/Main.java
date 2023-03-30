@@ -30,6 +30,9 @@ public class Main {
     EXIT, // выход из программы
   }
 
+  public static final String ANSI_BLUE = "\u001B[34m";
+  public static final String ANSI_RESET = "\u001B[0m";
+  public static final String ANSI_GREEN = "\u001B[32m";
   private static final Map<Command, String> commands = new HashMap<>();
 
   static { // статический константный словарь
@@ -61,10 +64,13 @@ public class Main {
   }
 
   public static void printMenu() {
+
+
     System.out.println(); // пустая строка для красоты
     System.out.println("Список команд:");
     for (Command command : commands.keySet()) {
-      System.out.println("- " + command + ": " + commands.get(command));
+      System.out.println(ANSI_BLUE + "- " + command + ANSI_RESET + ": " + ANSI_GREEN
+          + commands.get(command) + ANSI_RESET);
     }
   }
 
@@ -101,8 +107,8 @@ public class Main {
       while ((line = fr.readLine()) != null) {
         lines.add(line);
       }
-      for (int i = 0; i < lines.size(); ++i) {
-        List<String> columns = List.of(lines.get(i).split(";", -1));
+      for (String s : lines) {
+        List<String> columns = List.of(s.split(";", -1));
         int status = Integer.parseInt(columns.get(2));
         Event event = new Event(columns.get(0), columns.get(1), status);
         events.add(event);
