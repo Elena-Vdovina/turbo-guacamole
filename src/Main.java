@@ -34,7 +34,7 @@ public class Main {
   static { // статический константный словарь
     commands.put(Command.VIEW, "Посмотреть список дел");
     commands.put(Command.PLANS, "Посмотреть невыполненные дела");
-    commands.put(Command.TODAY, "Посмотреть невыполненные дела");
+    commands.put(Command.TODAY, "Посмотреть дела на сегодня");
     commands.put(Command.CREATE, "Создать новый список дел");
     commands.put(Command.ADD, "Добавить запись");
     commands.put(Command.CHECKDATE, "Изменить дату выполнения");
@@ -139,7 +139,7 @@ public class Main {
     noCheckEvents.sort(new EventDateNameComparator());
     int i = 0;
     for (Event event : noCheckEvents) {
-      System.out.print(i + 1 + " ");
+      System.out.printf(" %3d ", i + 1);
       System.out.println(event);
       ++i;
     }
@@ -156,14 +156,14 @@ public class Main {
     System.out.println("Список дел на сегодня");
     for (Event event : events) {
       if (currentDate.equals(event.getDateStr())) { // сравниваем текущую дату с датой дела
-        System.out.print(i + 1 + " ");
+        System.out.printf(" %3d ", i + 1);
         System.out.println(event);
         ++i;
         y = true;
       }
     }
     if (!y) {
-      System.out.println("Список пуст");
+      System.out.println("На сегодня дел нет");
     }
   }
 
