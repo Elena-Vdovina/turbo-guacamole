@@ -97,8 +97,6 @@ public class Main {
         command = br.readLine().toUpperCase();
       }
     }
-
-    System.out.println(); // пустая строка для красоты
     return result;
   }
 
@@ -130,6 +128,8 @@ public class Main {
 
   // Выводит список дел на экран
   public static void printList() throws IOException, ParseException {
+    System.out.println(); // пустая строка для красоты
+    System.out.println("Актуальный список дел");
     List<Event> events = readFile();
     int i = 0;
     for (Event event : events) {
@@ -226,11 +226,18 @@ public class Main {
   }
 
   public static int CheckValidation(BufferedReader br) throws IOException {
-    String strStatus = br.readLine();
-    while (!(strStatus.equals("0") || strStatus.equals("1"))) {
+    String strStatus = br.readLine().toUpperCase();
+    while (!(strStatus.equals("0") || strStatus.equals("1") || strStatus.equals("ВЫПОЛНЕНО") ||
+        strStatus.equals("НЕ ВЫПОЛНЕНО"))) {
       // проверка на соответствующее значение
-      System.out.print(ANSI_RED + "Некорректное значение. Введите 1 или 0:" + ANSI_RESET);
-      strStatus = br.readLine();
+      System.out.print(ANSI_RED + "Некорректное значение. Попробуйте еще раз: " + ANSI_RESET);
+      strStatus = br.readLine().toUpperCase();
+    }
+    switch (strStatus) {
+      case "0" -> strStatus = "0"; // не выполнено
+      case "1" -> strStatus = "1"; // выполнено
+      case "НЕ ВЫПОЛНЕНО" -> strStatus = "0"; // не выпонено
+      case "ВЫПОЛНЕНО" -> strStatus = "1"; // выполнено
     }
     return Integer.parseInt(strStatus);
   }
