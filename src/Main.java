@@ -30,9 +30,11 @@ public class Main {
     EXIT, // выход из программы
   }
 
-  public static final String ANSI_BLUE = "\u001B[34m";
   public static final String ANSI_RESET = "\u001B[0m";
+  public static final String ANSI_BLUE = "\u001B[34m";
   public static final String ANSI_GREEN = "\u001B[32m";
+  public static final String ANSI_RED = "\u001B[31m";
+
   private static final Map<Command, String> commands = new HashMap<>();
 
   static { // статический константный словарь
@@ -87,7 +89,7 @@ public class Main {
       try {
         result = Command.valueOf(command); // пытаемся установить команду
       } catch (IllegalArgumentException e) {
-        System.out.println("Некорректная команда: " + command);
+        System.out.println(ANSI_RED + "Некорректная команда: " + command + ANSI_RESET);
         System.out.print("Введите корректную команду: ");
         command = br.readLine().toUpperCase();
       }
@@ -183,7 +185,7 @@ public class Main {
     System.out.print("Что надо сделать - ");
     String name = br.readLine();
     while (name.isEmpty()) { // проверка на пустоту для названия
-      System.out.println("Запись не может быть пустой. Введите дело:");
+      System.out.println(ANSI_RED + "Запись не может быть пустой. Введите дело:" + ANSI_RESET);
       name = br.readLine();
     }
     System.out.print("До какого числа (\"дд.мм.гггг\") - ");
@@ -193,26 +195,24 @@ public class Main {
       try {
         dateStr = br.readLine();
         if (dateStr.isEmpty()) { // сообщение, если пустая строка
-          System.out.print("Дата не может быть пустой.");
+          System.out.print(ANSI_RED + "Дата не может быть пустой." + ANSI_RESET);
         }
         DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
         String dateTest = String.valueOf(formatter.parse(dateStr));
         tr = true;
       } catch (ParseException e) { //ошибка, если некорректный формат
-        System.out.print("Неправильный формат ввода! Попробуйте еще раз: ");
+        System.out.print(ANSI_RED + "Неправильный формат ввода! Попробуйте еще раз: " + ANSI_RESET);
         tr = false;
       }
     }
-
     System.out.print("Выполнено/не выполнено (1/0) - ");
     String strStatus = br.readLine();
     while (!(strStatus.equals("0") || strStatus.equals("1"))) {
       // проверка на соответствующее значение
-      System.out.println("Некорректное значение. Введите 1 или 0:");
+      System.out.println(ANSI_RED + "Некорректное значение. Введите 1 или 0:" + ANSI_RESET);
       strStatus = br.readLine();
     }
     int status = Integer.parseInt(strStatus);
-
     // добавили
     Event event = new Event(name, dateStr, status);
     events.add(event);
