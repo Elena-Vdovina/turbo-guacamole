@@ -35,17 +35,17 @@ public class Main {
   public static final String ANSI_GREEN = "\u001B[32m";
   public static final String ANSI_RED = "\u001B[31m";
 
-  private static final Map<Command, String> commands = new HashMap<>();
+  private static final List<Map<Command, String>> commands = new ArrayList<>();
 
   static { // статический константный словарь
-    commands.put(Command.VIEW, "Посмотреть список дел");
-    commands.put(Command.PLANS, "Посмотреть невыполненные дела");
-    commands.put(Command.TODAY, "Посмотреть дела на сегодня");
-    commands.put(Command.CREATE, "Создать новый список дел");
-    commands.put(Command.ADD, "Добавить запись");
-    commands.put(Command.CHECKDATE, "Изменить дату выполнения");
-    commands.put(Command.CHECK, "Изменить статус дела");
-    commands.put(Command.EXIT, "Выход");
+    commands.add(Collections.singletonMap(Command.VIEW, "Посмотреть список дел"));
+    commands.add(Collections.singletonMap(Command.PLANS, "Посмотреть невыполненные дела"));
+    commands.add(Collections.singletonMap(Command.TODAY, "Посмотреть дела на сегодня"));
+    commands.add(Collections.singletonMap(Command.CREATE, "Создать новый список дел"));
+    commands.add(Collections.singletonMap(Command.ADD, "Добавить запись"));
+    commands.add(Collections.singletonMap(Command.CHECKDATE, "Изменить дату выполнения"));
+    commands.add(Collections.singletonMap(Command.CHECK, "Изменить статус дела"));
+    commands.add(Collections.singletonMap(Command.EXIT, "Выход"));
   }
 
   public static void main(String[] args) throws IOException, ParseException {
@@ -66,14 +66,17 @@ public class Main {
   }
 
   public static void printMenu() {
-
-
     System.out.println(); // пустая строка для красоты
     System.out.println("Список команд:");
-    for (Command command : commands.keySet()) {
-      System.out.println(ANSI_BLUE + "- " + command + ANSI_RESET + ": " + ANSI_GREEN
-          + commands.get(command) + ANSI_RESET);
+
+    for (Map<Command, String> command : commands) {
+      String str = command.toString();
+      String sub = str.substring(1, str.length() - 1);
+      List<String> title = List.of(sub.split("=", -1));
+      System.out.printf(ANSI_BLUE + "%-10s   " + ANSI_RESET + ANSI_GREEN + "%s\n" + ANSI_RESET,
+          title.get(0), title.get(1));
     }
+
   }
 
   public static Command readCommand() throws IOException {
