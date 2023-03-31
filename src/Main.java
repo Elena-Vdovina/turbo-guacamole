@@ -15,7 +15,7 @@ import java.util.*;
 // Отсортировать вывод по факту выполнения.
 // Если есть файл, сохраненный ранее, он читает его. Если нет, создает.
 // Возможность делать напоминания (сравнить текущую дату и дату дела со статусом "не выполнено")
-// Main 16 методов, Event 3 поля 8 методов, Test 6 тестов, Comporator 6 методов
+//
 
 public class Main {
 
@@ -25,7 +25,7 @@ public class Main {
     TODAY, // посмотреть дела на текущую дату
     CREATE, //Создать новый список дел
     ADD, // добавить дело (строку: дело и дата)
-    PRIOR, //
+    PRIOR, // изменить приоритет дела
     CHECKDATE, // изменить дату
     CHECK, //изменить статус выполнения
     FILE, // другой файл списка дел
@@ -57,7 +57,7 @@ public class Main {
     Command command = readCommand();
     while (command != Command.EXIT) { // основной рабочий цикл программы, обрабатывающий команды
       switch (command) {
-        case VIEW -> printList(pathToFile); // вывод всего списка (или по дате?)
+        case VIEW -> printList(pathToFile); // вывод всего списка
         case PLANS -> printListNoCheck(pathToFile); // вывод списка невыполненных дел
         case TODAY -> printListForDay(pathToFile); // вывод списка дел на текущую дату
         case CREATE -> createNewList(pathToFile); // создание нового списка дел
@@ -72,11 +72,13 @@ public class Main {
     System.out.println("До свидания!");
   }
 
+  // изменение текущего файла
   public static String changeFile(String pathToFile) throws IOException, ParseException {
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     System.out.println("Текущий файл: " + pathToFile);
     System.out.print("Введите имя файла со списком дел: ");
     String newPath = br.readLine();
+    String pathStr="";
     try {
       Path path = Paths.get(newPath);
       boolean exists = Files.isRegularFile(path);
@@ -85,27 +87,29 @@ public class Main {
         if (!s.equals("text/plain")) {
           System.out.println(ANSI_RED + "Файл \"" + newPath +
               "\" не является текстовым! Будет использоваться текущий файл!" + ANSI_RESET);
-          return pathToFile;
+          pathStr= pathToFile;
         } else {
-          return newPath;
+          pathStr= newPath;
         }
       } else {
         System.out.println(ANSI_RED + "Нет файла " + newPath + " со списком дел" + ANSI_RESET);
-        newFile(pathToFile, newPath);
+        pathStr=newFile(pathToFile, newPath);
       }
     } catch (IOException e) {
       System.out.println(e.getMessage());
     }
-    return newPath;
+    return pathStr;
   }
 
+  // создание нового файла
   public static String newFile(String pathToFile, String newPath) throws IOException, ParseException {
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     System.out.println("1 - Создать новый список дел в текущем файле ");
     System.out.println("2 - Создать список дел в файле " + newPath);
-    System.out.println("3 - Вернуться в меню, использовать текущий файл");
+    System.out.println("3 - Вернуться в меню и остаться в файле ");
     String file = (br.readLine());
-    while (!(file.equals("1") || file.equals("2") || file.equals(3))) {
+    String pathStr="";
+    while (!(file.equals("1") || file.equals("2")|| file.equals("3"))) {
       // проверка на соответствующее значение
       System.out.print(ANSI_RED + "Некорректное значение. Попробуйте еще раз: " + ANSI_RESET);
       file = br.readLine();
@@ -113,14 +117,15 @@ public class Main {
     switch (file) {
       case "1" -> {   // создать новый список дел в текущем файле
         createNewList(pathToFile);
-        return pathToFile;
+        pathStr= pathToFile;
       }
       case "2" -> {  // создать список дел в новом файле
         createNewList(newPath);
-        return newPath;
+        pathStr= newPath;
       }
+      case "3" -> pathStr=pathToFile;  // вернуться в меню с текущим файлом
     }
-    return pathToFile;  // вернуться в меню с текущим файлом
+    return pathStr;
   }
 
   public static void printMenu() {
@@ -189,7 +194,7 @@ public class Main {
 
   // Выводит список дел на экран
   public static void printList(String pathToFile) throws IOException, ParseException {
-    System.out.println(); // пустая строка для красоты
+    System.out.println();
     System.out.println("Актуальный список дел");
     List<Event> events = readFile(pathToFile);
     int i = 0;
@@ -204,6 +209,7 @@ public class Main {
   public static void printListNoCheck(String pathToFile) throws IOException, ParseException {
     List<Event> events = readFile(pathToFile);
     List<Event> noCheckEvents = new ArrayList<>();
+    System.out.println();
     for (Event event : events) {
       if (!event.getCheck()) {
         noCheckEvents.add(event);
@@ -224,6 +230,7 @@ public class Main {
     Date current = new Date(); // записываем текущую системную дату
     SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
     String currentDate = formatter.format(current); // переводим системную дату в строку
+    System.out.println();
     int i = 0; // счетчик
     boolean y = false; // флаг для определения пустого списка
     System.out.println("Список дел на сегодня");
