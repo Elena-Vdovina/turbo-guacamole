@@ -15,6 +15,7 @@ import java.util.*;
 // Отсортировать вывод по факту выполнения.
 // Если есть файл, сохраненный ранее, он читает его. Если нет, создает.
 // Возможность делать напоминания (сравнить текущую дату и дату дела со статусом "не выполнено")
+// Main 16 методов, Event 3 поля 8 методов, Test 6 тестов, Comporator 6 методов
 
 public class Main {
 
@@ -24,6 +25,7 @@ public class Main {
     TODAY, // посмотреть дела на текущую дату
     CREATE, //Создать новый список дел
     ADD, // добавить дело (строку: дело и дата)
+    PRIOR, //
     CHECKDATE, // изменить дату
     CHECK, //изменить статус выполнения
     FILE, // другой файл списка дел
@@ -43,6 +45,7 @@ public class Main {
     commands.add(Collections.singletonMap(Command.TODAY, "Посмотреть дела на сегодня"));
     commands.add(Collections.singletonMap(Command.CREATE, "Создать новый список дел"));
     commands.add(Collections.singletonMap(Command.ADD, "Добавить запись"));
+    commands.add(Collections.singletonMap(Command.PRIOR, "Изменить приоритет дела"));
     commands.add(Collections.singletonMap(Command.CHECKDATE, "Изменить дату выполнения"));
     commands.add(Collections.singletonMap(Command.CHECK, "Изменить статус дела"));
     commands.add(Collections.singletonMap(Command.FILE, "Другой файл списка дел"));
@@ -59,6 +62,7 @@ public class Main {
         case TODAY -> printListForDay(pathToFile); // вывод списка дел на текущую дату
         case CREATE -> createNewList(pathToFile); // создание нового списка дел
         case ADD -> addEvent(pathToFile); // добавление новой записи
+        case PRIOR -> setPrior(pathToFile); //
         case CHECKDATE -> setData(pathToFile); // изменение даты выполнения
         case CHECK -> setCheck(pathToFile); // изменение статуса дела
         case FILE -> pathToFile = changeFile(pathToFile); // другой файл списка дел
@@ -165,8 +169,9 @@ public class Main {
       }
       for (String s : lines) {
         List<String> columns = List.of(s.split(";", -1));
-        int status = Integer.parseInt(columns.get(2));
-        Event event = new Event(columns.get(0), columns.get(1), status);
+        int status = Integer.parseInt(columns.get(3));
+        int priority = Integer.parseInt(columns.get(1));
+        Event event = new Event(columns.get(0), priority, columns.get(2), status);
         events.add(event);
       }
       fr.close();
@@ -175,9 +180,9 @@ public class Main {
       createNewList(pathToFile);
     } catch (ParseException e) {
       throw new RuntimeException(e);
-    } catch (IndexOutOfBoundsException e){
-     System.out.println(ANSI_RED+"В текущем файле нет списка дел!"+ANSI_RESET);
-     createNewList(pathToFile);
+    } catch (IndexOutOfBoundsException e) {
+      System.out.println(ANSI_RED + "В текущем файле нет списка дел!" + ANSI_RESET);
+      createNewList(pathToFile);
     }
     return events;
   }
@@ -247,19 +252,42 @@ public class Main {
       System.out.println(ANSI_RED + "Запись не может быть пустой. Введите дело:" + ANSI_RESET);
       name = br.readLine();
     }
+    System.out.println("Определите важность дела");
+    System.out.println("ОЧЕНЬ ВАЖНО/ВАЖНО/НЕ ВАЖНО/НЕИЗВЕСТНО");
+    System.out.print("     1     /  2  /    3   /    4     ");
+    int prioritet = priorityValidation(br);
     System.out.print("До какого числа (\"дд.мм.гггг\") - ");
-    String dateStr = DateValidation(br); // проверка формата ввода
+    String dateStr = dateValidation(br); // проверка формата ввода
     System.out.print("Выполнено/не выполнено (1/0) - ");
-    int status = CheckValidation(br); // проверка ввода
+    int status = checkValidation(br); // проверка ввода
     // добавили
-    Event event = new Event(name, dateStr, status);
+    Event event = new Event(name, prioritet, dateStr, status);
     events.add(event);
     // записали в файл
     writeFile(events, pathToFile);
     printList(pathToFile);
   }
 
-  public static String DateValidation(BufferedReader br) {
+  public static int priorityValidation(BufferedReader br) throws IOException {
+    String prStr = br.readLine().toUpperCase();
+    while (!(prStr.equals("1") || prStr.equals("2") || prStr.equals("3") || prStr.equals("4") ||
+        prStr.equals("ОЧЕНЬ ВАЖНО") || prStr.equals("ВАЖНО") ||
+        prStr.equals("НЕ ВАЖНО") || prStr.equals("НЕИЗВЕСТНО"))) {
+      // проверка на соответствующее значение
+      System.out.print(ANSI_RED + "Некорректное значение. Попробуйте еще раз: " + ANSI_RESET);
+      prStr = br.readLine().toUpperCase();
+    }
+    int prioritet = 0;
+    switch (prStr) {
+      case "1", "ОЧЕНЬ ВАЖНО" -> prioritet = 1;
+      case "2", "ВАЖНО" -> prioritet = 2;
+      case "3", "НЕ ВАЖНО" -> prioritet = 3;
+      case "4", "НЕИЗВЕСТНО" -> prioritet = 4;
+    }
+    return prioritet;
+  }
+
+  public static String dateValidation(BufferedReader br) {
     String dateStr = "";
     boolean tr = false; // флаг для проверки условий
     while (!tr) {
@@ -281,7 +309,7 @@ public class Main {
     return dateStr;
   }
 
-  public static int CheckValidation(BufferedReader br) throws IOException {
+  public static int checkValidation(BufferedReader br) throws IOException {
     String strStatus = br.readLine().toUpperCase();
     while (!(strStatus.equals("0") || strStatus.equals("1") || strStatus.equals("ВЫПОЛНЕНО") ||
         strStatus.equals("НЕ ВЫПОЛНЕНО"))) {
@@ -290,10 +318,8 @@ public class Main {
       strStatus = br.readLine().toUpperCase();
     }
     switch (strStatus) {
-      case "0" -> strStatus = "0"; // не выполнено
-      case "1" -> strStatus = "1"; // выполнено
-      case "НЕ ВЫПОЛНЕНО" -> strStatus = "0"; // не выпонено
-      case "ВЫПОЛНЕНО" -> strStatus = "1"; // выполнено
+      case "0", "НЕ ВЫПОЛНЕНО" -> strStatus = "0"; // не выполнено
+      case "1", "ВЫПОЛНЕНО" -> strStatus = "1"; // выполнено
     }
     return Integer.parseInt(strStatus);
   }
@@ -302,7 +328,7 @@ public class Main {
   public static void writeFile(List<Event> events, String pathToFile) throws IOException {
     FileWriter fr = new FileWriter(pathToFile);
     for (Event event : events) {
-      String line = event.getName() + ";" + event.getDateStr() + ";";
+      String line = event.getName() + ";" + event.getPriority() + ";" + event.getDateStr() + ";";
       if (event.getCheck()) {
         line += "1";
       } else {
@@ -323,10 +349,10 @@ public class Main {
     System.out.print("Номер записи для изменения статуса ");
     int n = Integer.parseInt(br.readLine());
     System.out.print("Введите новый статус - выполнено/не выполнено (1/0) - ");
-    int status = CheckValidation(br); // проверка ввода
+    int status = checkValidation(br); // проверка ввода
     // записали
     Event event = events.get(n - 1);
-    Event event1 = new Event(event.getName(), event.getDateStr(), status);
+    Event event1 = new Event(event.getName(), event.getPriority(), event.getDateStr(), status);
     events.set(n - 1, event1);
     writeFile(events, pathToFile);
     printList(pathToFile);
@@ -341,7 +367,7 @@ public class Main {
     System.out.print("Номер записи для изменения даты ");
     int n = Integer.parseInt(br.readLine());
     System.out.print("Введите новую дату (дд.мм.гггг) - ");
-    String dateStr = DateValidation(br); // проверка формата ввода
+    String dateStr = dateValidation(br); // проверка формата ввода
     // записали
     Event event = events.get(n - 1);
     int status;
@@ -350,10 +376,36 @@ public class Main {
     } else {
       status = 0;
     }
-    Event event1 = new Event(event.getName(), dateStr, status);
+    Event event1 = new Event(event.getName(), event.getPriority(), dateStr, status);
     events.set(n - 1, event1);
     writeFile(events, pathToFile);
     printList(pathToFile);
+  }
+
+  public static void setPrior(String pathToFile) throws IOException, ParseException {
+    List<Event> events = readFile(pathToFile);
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    printList(pathToFile);
+    // прочитали
+    System.out.print("Номер записи для изменения приоритета дела ");
+    int n = Integer.parseInt(br.readLine());
+    System.out.println("Введите новый приоритет ");
+    System.out.println("ОЧЕНЬ ВАЖНО/ВАЖНО/НЕ ВАЖНО/НЕИЗВЕСТНО");
+    System.out.println("     1     /  2  /    3   /    4     ");
+    int prioritet = priorityValidation(br); // проверка формата ввода
+    // записали
+    Event event = events.get(n - 1);
+    int status;
+    if (event.getCheck()) {
+      status = 1;
+    } else {
+      status = 0;
+    }
+    Event event1 = new Event(event.getName(), prioritet, event.getDateStr(), status);
+    events.set(n - 1, event1);
+    writeFile(events, pathToFile);
+    printList(pathToFile);
+
   }
 
   // создание нового списка дел
@@ -368,12 +420,16 @@ public class Main {
       System.out.println("Новая запись в списке дел:");
       System.out.print("Что надо сделать - ");
       String name = br.readLine();
+      System.out.println("Определите важность дела");
+      System.out.println("ОЧЕНЬ ВАЖНО/ВАЖНО/НЕ ВАЖНО/НЕИЗВЕСТНО");
+      System.out.print("     1     /  2  /    3   /    4     ");
+      int prioritet = priorityValidation(br);
       System.out.print("До какого числа (\"дд.мм.гггг\") - ");
-      String dateStr = br.readLine();
+      String dateStr = dateValidation(br);
       System.out.print("Выполнено/не выполнено (1/0) - ");
-      int status = Integer.parseInt(br.readLine());
+      int status = checkValidation(br);
       // добавили
-      Event event = new Event(name, dateStr, status);
+      Event event = new Event(name, prioritet, dateStr, status);
       events.add(event);
       System.out.println();
       System.out.print("Добавить новую запись (1-да, 2-выход): ");
